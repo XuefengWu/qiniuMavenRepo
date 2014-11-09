@@ -1,0 +1,1 @@
+get maven artifacts from qiniu
