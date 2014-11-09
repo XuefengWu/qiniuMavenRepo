@@ -4,7 +4,7 @@ object Version {
   val akka      = "2.3.6"
   val akkaHttp  = "0.9"
   val logback   = "1.1.2"
-  val scala     = "2.11.2"
+  val scala     = "2.11.4"
   val scalaTest = "2.2.2"
   val commonIo  = "2.4"
   val asyncHttpClient = "1.8.14"

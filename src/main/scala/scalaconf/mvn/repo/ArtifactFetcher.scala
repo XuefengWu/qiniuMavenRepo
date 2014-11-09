@@ -2,7 +2,7 @@ package scalaconf.mvn.repo
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client._
 import com.qiniu.api.auth.digest.Mac
@@ -27,7 +27,7 @@ object ArtifactFetcher {
 
 case class ArtifactUri(resolvers: Seq[String], path: String)
 
-class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor {
+class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
 
 
   override def receive: Receive = {
@@ -52,7 +52,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor {
 
       override def onCompleted(): Unit = {
         val data = bytes.toByteArray
-        println(s"=========put data size: ${data.size}=============${path.tail}========")
+        log.debug(s"=========put data size: ${data.size}=============${path.tail}========")
         ResumeableIoApi.put(new ByteArrayInputStream(data), p.token(mac), path.tail)
         store.FetchStore.put(path, store.FetchResult.Ok)
       }

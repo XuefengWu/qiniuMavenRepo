@@ -4,7 +4,7 @@ version := "1.0"
 
 scalaVersion := Version.scala
 
-//resolvers += "Qiniu Snapshots" at "http://localhost:9000/"
+resolvers += "Qiniu Snapshots" at "http://repo.scalaconf.com/"
 
 resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
