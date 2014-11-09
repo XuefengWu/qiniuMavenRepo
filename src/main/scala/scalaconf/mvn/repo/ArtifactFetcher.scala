@@ -51,7 +51,9 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor {
       }
 
       override def onCompleted(): Unit = {
-        ResumeableIoApi.put(new ByteArrayInputStream(bytes.toByteArray), p.token(mac), path.tail)
+        val data = bytes.toByteArray
+        println(s"=========put data size: ${data.size}=============${path.tail}========")
+        ResumeableIoApi.put(new ByteArrayInputStream(data), p.token(mac), path.tail)
         store.FetchStore.put(path, store.FetchResult.Ok)
       }
 
