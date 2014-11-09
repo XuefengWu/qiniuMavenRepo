@@ -82,6 +82,8 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
       }
     })
 
+
+
   }
 
   private def tryFetchForNext(resolvers: Seq[String], path: String): Unit = {

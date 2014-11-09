@@ -1,4 +1,4 @@
-name := "qiniu Maven Repo"
+name := "qiniuMavenRepo"
 
 version := "1.0"
 
