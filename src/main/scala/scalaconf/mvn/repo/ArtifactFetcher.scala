@@ -8,16 +8,21 @@ import com.ning.http.client._
 import com.qiniu.api.auth.digest.Mac
 import com.qiniu.api.resumableio.ResumeableIoApi
 import com.qiniu.api.rs.PutPolicy
+import com.typesafe.config.ConfigFactory
 
 object ArtifactFetcher {
-
   private val bucketName = "mavenrepo"
   private val p = new PutPolicy(bucketName)
-  private val ACCESS_KEY = "*****"
-  private val SECRET_KEY = "*****"
-  private val mac = new Mac(ACCESS_KEY, SECRET_KEY)
+  private val conf = ConfigFactory.load()
+  private val ak = conf.getString("ACCESS_KEY")
+  private val sk = conf.getString("SECRET_KEY")
+  private val mac = new Mac(ak, sk)
 
-  def props() = Props(new ArtifactFetcher(p, mac))
+  def props() = {
+    val mac = new Mac(ak, sk)
+    Props(new ArtifactFetcher(p, mac))
+  }
+
 }
 
 case class ArtifactUri(resolvers: Seq[String], path: String)
@@ -27,7 +32,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor {
 
   override def receive: Receive = {
     case ArtifactUri(resolvers, path) if resolvers.nonEmpty =>
-      if(Repo.store.get(path).isEmpty) {
+      if(store.FetchStore.get(path).isEmpty) {
         fetch(resolvers, path, resolvers.head + path)
       }
   }
@@ -35,19 +40,19 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor {
   private def fetch(resolvers: Seq[String], path: String, url: String): Unit = {
 
     val client = new AsyncHttpClient()
-    Repo.store.put(path, Repo.FetchResult.InProgress)
+    store.FetchStore.put(path, store.FetchResult.InProgress)
     client.prepareGet(url).execute(new AsyncHandler[Unit]() {
 
       val bytes = new ByteArrayOutputStream()
 
       override def onThrowable(t: Throwable): Unit = {
-        Repo.store.put(path, Repo.FetchResult.Fail)
+        store.FetchStore.put(path, store.FetchResult.Fail)
         tryFetchForNext(resolvers, path)
       }
 
       override def onCompleted(): Unit = {
         ResumeableIoApi.put(new ByteArrayInputStream(bytes.toByteArray), p.token(mac), path.tail)
-        Repo.store.put(path, Repo.FetchResult.Ok)
+        store.FetchStore.put(path, store.FetchResult.Ok)
       }
 
       override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
@@ -58,7 +63,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor {
       override def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
         val statusCode = responseStatus.getStatusCode()
         if (statusCode >= 400) {
-          Repo.store.put(path, Repo.FetchResult.Fail)
+          store.FetchStore.put(path, store.FetchResult.Fail)
           tryFetchForNext(resolvers, path)
           STATE.ABORT
         } else {

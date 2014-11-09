@@ -14,10 +14,10 @@ class RepoProxy(qiniuRoot: String) extends Actor {
   override def receive: Receive = {
     case uri: Uri =>
       val path = uri.path.toString()
-      if (Repo.store.get(path) == Some(Repo.FetchResult.Ok)) {
+      if (store.FetchStore.get(path) == Some(store.FetchResult.Ok)) {
         sender() ! HttpResponse(StatusCodes.TemporaryRedirect, headers = List(headers.Location(qiniuRoot + path)))
       } else {
-        if (Repo.store.get(path).isEmpty) {
+        if (store.FetchStore.get(path).isEmpty) {
           fetch(path)
         }
         sender() ! HttpResponse(StatusCodes.NotFound)

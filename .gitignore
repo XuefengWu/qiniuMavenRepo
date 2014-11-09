@@ -22,3 +22,4 @@ bower_components/
 public/app/about.html
 projectFilesBackup/
 fetcher_result_status/
+application.conf
