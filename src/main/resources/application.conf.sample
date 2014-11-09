@@ -1,3 +1,7 @@
 ACCESS_KEY = "*****"
 SECRET_KEY = "*****"
 host       = "localhost"
+
+akka {
+  loglevel = "DEBUG"
+}
