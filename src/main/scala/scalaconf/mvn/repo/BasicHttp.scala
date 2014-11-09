@@ -29,7 +29,7 @@ object BasicHttp extends App{
 
   def fetchArtifact(uri: Uri): Future[HttpResponse] = (fecherActor ? uri).map(_.asInstanceOf[HttpResponse])
 
-  val bindingFuture = IO(Http) ? Http.Bind(interface = "localhost", port = 9010)
+  val bindingFuture = IO(Http) ? Http.Bind(interface = "localhost", port = 9020)
   bindingFuture foreach {
     case Http.ServerBinding(localAddress, connectionStream) ⇒
       Flow(connectionStream).foreach({
