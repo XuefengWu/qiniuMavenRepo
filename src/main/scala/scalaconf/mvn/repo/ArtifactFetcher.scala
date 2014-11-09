@@ -41,7 +41,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
 
     val client = new AsyncHttpClient()
     store.FetchStore.put(path, store.FetchResult.InProgress)
-    client.prepareGet(url).execute(new AsyncHandler[Unit]() {
+    val f = client.prepareGet(url).execute(new AsyncHandler[Unit]() {
 
       val bytes = new ByteArrayOutputStream()
 
@@ -81,8 +81,9 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
         })
       }
     })
-
-
+    if(f.isDone){
+      client.close()
+    }
 
   }
 
