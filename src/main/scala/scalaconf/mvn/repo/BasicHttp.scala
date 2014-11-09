@@ -9,6 +9,7 @@ import akka.pattern.ask
 import akka.stream.FlowMaterializer
 import akka.stream.scaladsl.Flow
 import akka.util.Timeout
+import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -29,7 +30,7 @@ object BasicHttp extends App{
 
   def fetchArtifact(uri: Uri): Future[HttpResponse] = (fecherActor ? uri).map(_.asInstanceOf[HttpResponse])
 
-  val bindingFuture = IO(Http) ? Http.Bind(interface = "localhost", port = 9020)
+  val bindingFuture = IO(Http) ? Http.Bind(interface = ConfigFactory.load().getString("host"), port = 9020)
   bindingFuture foreach {
     case Http.ServerBinding(localAddress, connectionStream) ⇒
       Flow(connectionStream).foreach({
