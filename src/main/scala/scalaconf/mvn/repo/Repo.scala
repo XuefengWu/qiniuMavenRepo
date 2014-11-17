@@ -7,7 +7,8 @@ object Repo {
     "http://repo.typesafe.com/typesafe/snapshots/",
     "http://repo1.maven.org/maven2/",
     "http://repository.springsource.com/ivy/bundles/external/",
-    "http://repository.jboss.com/maven2/"
+    "http://repository.jboss.com/maven2/",
+    "https://repo.spring.io/libs-release/"
   )
   
 }
