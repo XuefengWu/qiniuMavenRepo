@@ -14,21 +14,22 @@ import com.typesafe.config.ConfigFactory
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scalaconf.mvn.repo.router.RequestRouter
 
 object BasicHttp extends App{
 
   implicit val system = ActorSystem()
   implicit val materializer = FlowMaterializer()
-  implicit val askTimeout: Timeout = 500.millis
+  implicit val askTimeout: Timeout = 5000.millis
 
-  private val fecherActor = system.actorOf(RepoProxy.props)
+  private val requestRouter = system.actorOf(RequestRouter.props())
 
   val requestHandler: HttpRequest => Future[HttpResponse] = {
     case HttpRequest(GET, path, _, _, _) => fetchArtifact(path)
     case _                               => Future(HttpResponse(StatusCodes.BadRequest, entity = "Unknown resource!"))
   }
 
-  def fetchArtifact(uri: Uri): Future[HttpResponse] = (fecherActor ? uri).map(_.asInstanceOf[HttpResponse])
+  def fetchArtifact(uri: Uri): Future[HttpResponse] = (requestRouter ? uri).map(_.asInstanceOf[HttpResponse])
 
   val bindingFuture = IO(Http) ? Http.Bind(interface = ConfigFactory.load().getString("host"), port = 9020)
   bindingFuture foreach {

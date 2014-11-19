@@ -1,4 +1,4 @@
-package scalaconf.mvn.repo
+package scalaconf.mvn.repo.handler
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
@@ -9,6 +9,8 @@ import com.qiniu.api.auth.digest.Mac
 import com.qiniu.api.resumableio.ResumeableIoApi
 import com.qiniu.api.rs.PutPolicy
 import com.typesafe.config.ConfigFactory
+
+import scalaconf.mvn.repo.store
 
 object ArtifactFetcher {
   private val bucketName = "mavenrepo"
