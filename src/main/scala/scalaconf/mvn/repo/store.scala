@@ -27,6 +27,7 @@ object FetchStore {
         Option(asString(ele.getValue)).map(FetchResult.withName) match {
           case Some(FetchResult.Fail) => res += asString(ele.getKey)
           case Some(FetchResult.NotFound) => res += asString(ele.getKey)
+          case _ =>
         }
       }
     }
