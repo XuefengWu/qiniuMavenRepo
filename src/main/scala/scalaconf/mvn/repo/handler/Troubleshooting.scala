@@ -3,7 +3,6 @@ package scalaconf.mvn.repo.handler
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.http.model.{HttpResponse, StatusCodes}
 
-import scala.collection.JavaConversions._
 import scalaconf.mvn.repo.router.RequestPath
 import scalaconf.mvn.repo.store.FetchStore
 
@@ -34,6 +33,6 @@ class Refresh extends Actor with ActorLogging {
 class Fails extends Actor with ActorLogging {
   override def receive: Actor.Receive = {
     case RequestPath(origin, path) =>
-      origin ! HttpResponse(status = StatusCodes.OK, entity = String.join("\n", FetchStore.fails()))
+      origin ! HttpResponse(status = StatusCodes.OK, entity = FetchStore.fails().mkString("\n"))
   }
 }
