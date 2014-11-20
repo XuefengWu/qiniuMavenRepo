@@ -33,4 +33,22 @@ object FetchStore {
     }
     res.toList
   }
+
+  def search(pattern: String): List[String] = {
+    val res = new scala.collection.mutable.ListBuffer[String]
+    val iterator: DBIterator = db.iterator()
+    while (iterator.hasNext) {
+      val ele = iterator.next()
+      val artifact: String = asString(ele.getKey)
+      if (artifact.startsWith(pattern)) {
+        if (!asString(ele.getValue).isEmpty) {
+          Option(asString(ele.getValue)).map(FetchResult.withName) match {
+            case Some(FetchResult.Ok) => res += artifact
+            case _ =>
+          }
+        }
+      }
+    }
+    res.toList
+  }
 }
