@@ -35,7 +35,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
   override def receive: Receive = {
     case ArtifactUri(resolvers, path) if resolvers.nonEmpty =>
       if(store.FetchStore.get(path).isEmpty) {
-        fetch(resolvers, path, resolvers.head + path)
+        fetch(resolvers.tail, path, resolvers.head + path)
       }
   }
 
