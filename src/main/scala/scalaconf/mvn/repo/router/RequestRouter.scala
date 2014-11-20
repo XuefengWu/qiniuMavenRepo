@@ -5,12 +5,7 @@ import akka.http.model.{HttpResponse, StatusCodes, Uri}
 
 import scalaconf.mvn.repo.handler.{ArtifactSearch, RepoProxy, Troubleshooting}
 
-/**
- * Component:
- * Description:
- * Date: 2014/11/19
- * @author Andy Ai
- */
+
 object RequestRouter {
   def props(): Props = {
     Props(new RequestRouter(Map(

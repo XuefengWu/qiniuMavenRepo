@@ -6,12 +6,6 @@ import akka.http.model.{HttpResponse, StatusCodes}
 import scalaconf.mvn.repo.router.RequestPath
 import scalaconf.mvn.repo.store.FetchStore
 
-/**
- * Component:
- * Description:
- * Date: 2014/11/19
- * @author Andy Ai
- */
 object Troubleshooting {
   def refresh(): Props = {
     Props(classOf[Refresh])
