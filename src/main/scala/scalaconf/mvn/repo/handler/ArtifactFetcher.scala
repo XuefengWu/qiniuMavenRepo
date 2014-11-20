@@ -54,9 +54,11 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
 
       override def onCompleted(): Unit = {
         val data = bytes.toByteArray
-        log.debug(s"=========put data size: ${data.size}=============${path.tail}========")
-        ResumeableIoApi.put(new ByteArrayInputStream(data), p.token(mac), path.tail)
-        store.FetchStore.put(path, store.FetchResult.Ok)
+        if(data.size > 0){
+          log.debug(s"=========put data size: ${data.size}=============${path.tail}========")
+          ResumeableIoApi.put(new ByteArrayInputStream(data), p.token(mac), path.tail)
+          store.FetchStore.put(path, store.FetchResult.Ok)
+        }
       }
 
       override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
