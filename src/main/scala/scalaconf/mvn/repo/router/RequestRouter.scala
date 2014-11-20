@@ -3,7 +3,7 @@ package scalaconf.mvn.repo.router
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.http.model.{HttpResponse, StatusCodes, Uri}
 
-import scalaconf.mvn.repo.handler.{RepoProxy, Troubleshooting}
+import scalaconf.mvn.repo.handler.{ArtifactSearch, RepoProxy, Troubleshooting}
 
 /**
  * Component:
@@ -16,8 +16,9 @@ object RequestRouter {
     Props(new RequestRouter(Map(
       "/releases/" -> RepoProxy.props,
       "/snapshot/" -> RepoProxy.props,
-      "/fails/" -> Troubleshooting.fails(),
-      "/refresh/" -> Troubleshooting.refresh()
+      "/fails/" -> Troubleshooting.fails,
+      "/refresh/" -> Troubleshooting.refresh,
+      "/search/" -> ArtifactSearch.props
     )))
   }
 }
