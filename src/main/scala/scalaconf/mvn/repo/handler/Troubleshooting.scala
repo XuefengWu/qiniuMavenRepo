@@ -26,7 +26,7 @@ class Refresh extends Actor with ActorLogging {
 
 class Fails extends Actor with ActorLogging {
   override def receive: Actor.Receive = {
-    case RequestPath(origin, path) =>
+    case RequestPath(origin, _) =>
       origin ! HttpResponse(status = StatusCodes.OK, entity = FetchStore.fails().mkString("\n"))
   }
 }
