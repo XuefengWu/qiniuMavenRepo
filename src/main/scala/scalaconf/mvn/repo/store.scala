@@ -12,9 +12,23 @@ object FetchResult extends Enumeration {
   val InProgress, Ok,Fail, NotFound = Value
 }
 
-object FetchStore {
+trait FetchStoreDao {
+
+  def put(path: String, status: FetchResult.Status): Unit
+
+  def get(path: String): Option[FetchResult.Status]
+
+  def del(path:String) :Unit
+
+  def fails(): List[String]
+
+  def search(pattern: String): List[String]
+
+}
+
+object FetchStore extends FetchStoreDao {
   private val db = factory.open(new File("fetcher_result_status"), new Options())
-  def put(path: String, status: FetchResult.Status) = db.put(bytes(path), bytes(status.toString))
+  def put(path: String, status: FetchResult.Status): Unit = db.put(bytes(path), bytes(status.toString))
   def get(path: String): Option[FetchResult.Status] = Option(asString(db.get(bytes(path)))).map(FetchResult.withName)
   def del(path:String) :Unit = db.delete(bytes(path))
 

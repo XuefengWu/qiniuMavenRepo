@@ -23,6 +23,8 @@ object Library {
   val commonIo        = "commons-io"        %  "commons-io"                    % Version.commonIo
   val asyncHttpClient = "com.ning"          %  "async-http-client"             % Version.asyncHttpClient
   val qiniu           = "com.qiniu"         %  "qiniu-java-sdk"                % Version.qiniu
+  val scalamock       = "org.scalamock"     %% "scalamock-scalatest-support"   % "3.2"
+  val mockito         = "org.mockito"       % "mockito-all"                    % "1.10.8"
 }
 
 object Dependencies {
@@ -39,6 +41,8 @@ object Dependencies {
     asyncHttpClient,
     commonIo,
     qiniu,
+    mockito % "test",
+    scalamock % "test",
     akkaTestkit % "test",
     scalaTest   % "test"
   )
