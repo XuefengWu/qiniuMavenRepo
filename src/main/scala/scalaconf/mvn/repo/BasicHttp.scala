@@ -25,11 +25,9 @@ object BasicHttp extends App{
   private val requestRouter = system.actorOf(RequestRouter.props())
 
   val requestHandler: HttpRequest => Future[HttpResponse] = {
-    case HttpRequest(GET, path, _, _, _) => fetchArtifact(path)
+    case HttpRequest(GET, path, _, _, _) => (requestRouter ? path).map(_.asInstanceOf[HttpResponse])
     case _                               => Future(HttpResponse(StatusCodes.BadRequest, entity = "Unknown resource!"))
   }
-
-  def fetchArtifact(uri: Uri): Future[HttpResponse] = (requestRouter ? uri).map(_.asInstanceOf[HttpResponse])
 
   val bindingFuture = IO(Http) ? Http.Bind(interface = ConfigFactory.load().getString("host"), port = 9020)
   bindingFuture foreach {
