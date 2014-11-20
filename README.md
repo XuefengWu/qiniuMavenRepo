@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/XuefengWu/qiniuMavenRepo.svg)](https://travis-ci.org/XuefengWu/qiniuMavenRepo)
+
 usage:
 ===
 build.sbt
