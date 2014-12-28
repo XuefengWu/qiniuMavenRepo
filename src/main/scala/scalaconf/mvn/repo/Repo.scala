@@ -18,6 +18,7 @@ object Repo {
     "https://oss.sonatype.org/content/repositories/releases",
     "https://oss.sonatype.org/content/repositories/staging",
     "http://repo.springsource.org/plugins-release",
+    "http://maven.twttr.com",
     "http://repo.springsource.org/libs-release-remote"
   )
   
