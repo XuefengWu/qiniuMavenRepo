@@ -1,11 +1,13 @@
 package scalaconf.mvn.repo.handler
 
-import java.io.{BufferedInputStream, ByteArrayInputStream, ByteArrayOutputStream}
+import java.io._
+import java.nio.channels.Channels
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client._
 import com.qiniu.api.auth.digest.Mac
+import com.qiniu.api.io.{PutExtra, IoApi}
 import com.qiniu.api.resumableio.ResumeableIoApi
 import com.qiniu.api.rs.PutPolicy
 import com.typesafe.config.ConfigFactory
@@ -21,6 +23,7 @@ object ArtifactFetcher {
   private val ak = conf.getString("ACCESS_KEY")
   private val sk = conf.getString("SECRET_KEY")
   private val mac = new Mac(ak, sk)
+  private val rootDir = conf.getString("TEMP_DIR")
 
   def props() = {
     val mac = new Mac(ak, sk)
@@ -55,8 +58,19 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
         if (relocation.isEmpty) {
           val entity = response.getEntity()
 
-          ResumeableIoApi.put(new BufferedInputStream(entity.getContent, 1024*64), p.token(mac), path.tail)
-          store.FetchStore.put(path, store.FetchResult.Ok)
+          //save file to disk
+          val dest = s"${ArtifactFetcher.rootDir}/${path.tail}"
+          val file = new File(dest)
+          if(file.getParentFile.mkdirs()) {
+            val randomAccessFile = new RandomAccessFile(new File(dest), "rw")
+            val fileChannel = randomAccessFile.getChannel()
+            val inputChannel = Channels.newChannel(new BufferedInputStream(entity.getContent, 1024 * 64))
+            fileChannel.transferFrom(inputChannel, 0, entity.getContentLength)
+
+            IoApi.putFile(p.token(mac), path.tail, dest, new PutExtra())
+            //ResumeableIoApi.put(new BufferedInputStream(entity.getContent, 1024*64), p.token(mac), path.tail)
+            store.FetchStore.put(path, store.FetchResult.Ok)
+          }
         } else {
           relocation.foreach(ref => fetch(resolvers, path, url))
         }

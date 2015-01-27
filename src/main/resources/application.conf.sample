@@ -1,7 +1,7 @@
 ACCESS_KEY = "*****"
 SECRET_KEY = "*****"
 host       = "localhost"
-
+TEMP_DIR   = "~"
 akka {
   loglevel = "DEBUG"
 }
