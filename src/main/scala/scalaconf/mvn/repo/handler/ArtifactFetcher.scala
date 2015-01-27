@@ -55,6 +55,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
         if (relocation.isEmpty) {
           val entity = response.getEntity()
           ResumeableIoApi.put(entity.getContent, p.token(mac), path.tail)
+          store.FetchStore.put(path, store.FetchResult.Ok)
         } else {
           relocation.foreach(ref => fetch(resolvers, path, url))
         }
