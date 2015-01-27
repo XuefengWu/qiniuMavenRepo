@@ -48,7 +48,8 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
       val bytes = new ByteArrayOutputStream()
 
       override def onThrowable(t: Throwable): Unit = {
-        store.FetchStore.put(path, store.FetchResult.Fail)
+        //store.FetchStore.put(path, store.FetchResult.Fail)
+        store.FetchStore.del(path)
         tryFetchForNext(resolvers, path)
       }
 
@@ -69,7 +70,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
       override def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
         val statusCode = responseStatus.getStatusCode()
         if (statusCode >= 400) {
-          store.FetchStore.put(path, store.FetchResult.Fail)
+          store.FetchStore.del(path)
           tryFetchForNext(resolvers, path)
           STATE.ABORT
         } else {
