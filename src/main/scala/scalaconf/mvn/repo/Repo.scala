@@ -3,6 +3,7 @@ package scalaconf.mvn.repo
 object Repo {
 
   val resolvers = Seq(
+<<<<<<< HEAD
     "http://repo.typesafe.com/typesafe/releases",
     "http://repo.typesafe.com/typesafe/snapshots",
     "http://repo1.maven.org/maven2",
@@ -19,7 +20,8 @@ object Repo {
     "https://oss.sonatype.org/content/repositories/staging",
     "http://repo.springsource.org/plugins-release",
     "http://maven.twttr.com",
-    "http://repo.springsource.org/libs-release-remote"
+    "http://repo.springsource.org/libs-release-remote",
+    "http://central.maven.org/maven2"
   )
   
 }
