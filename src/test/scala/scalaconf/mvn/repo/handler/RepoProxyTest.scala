@@ -23,7 +23,7 @@ class RepoProxyTest extends TestKit(ActorSystem("MySpec")) with ImplicitSender
       val proxy = system.actorOf(Props(new RepoProxy("http://mavenrepo.qiniudn.com", dao, props)))
       proxy ! RequestPath(testActor, "scala.jar")
       expectMsgPF(){
-        case ArtifactUri(_, path) if path == "scala.jar" => true
+        case ArtifactUri(_, path, _) if path == "scala.jar" => true
       }
     }
 
