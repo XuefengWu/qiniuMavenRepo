@@ -39,7 +39,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
       }
   }
 
-  private def fetch(resolvers: Seq[String], path: String, url: String, clientOpt : Option[AsyncHttpClient] = None): Unit = {
+  private def fetch(resolvers: Seq[String], path: String, url: String, clientOpt : Option[AsyncHttpClient]): Unit = {
 
     val client = clientOpt.getOrElse(new AsyncHttpClient())
     store.FetchStore.put(path, store.FetchResult.InProgress)
@@ -59,6 +59,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
           log.debug(s"=========put data size: ${data.size}=============${path.tail}========")
           ResumeableIoApi.put(new ByteArrayInputStream(data), p.token(mac), path.tail)
           store.FetchStore.put(path, store.FetchResult.Ok)
+          client.close()
         }
       }
 
@@ -81,7 +82,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
       override def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
         val location = headers.getHeaders.getFirstValue("Location")
         Option(location).fold(STATE.CONTINUE)(_url => {
-          fetch(resolvers, path, _url)
+          fetch(resolvers, path, _url, clientOpt)
           STATE.ABORT
         })
       }
