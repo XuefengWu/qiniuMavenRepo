@@ -48,7 +48,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
       val bytes = new ByteArrayOutputStream()
 
       override def onThrowable(t: Throwable): Unit = {
-        //store.FetchStore.put(path, store.FetchResult.Fail)
+
         store.FetchStore.del(path)
         tryFetchForNext(resolvers, path, client)
       }
@@ -96,6 +96,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
     if(resolvers.nonEmpty) {
       self ! ArtifactUri(resolvers.tail, path)
     } else {
+      store.FetchStore.put(path, store.FetchResult.Fail)
       client.close()
     }
   }
