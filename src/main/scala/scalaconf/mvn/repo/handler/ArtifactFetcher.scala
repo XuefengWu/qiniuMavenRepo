@@ -1,6 +1,6 @@
 package scalaconf.mvn.repo.handler
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.io.{BufferedInputStream, ByteArrayInputStream, ByteArrayOutputStream}
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.ning.http.client.AsyncHandler.STATE
@@ -54,7 +54,8 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
         val relocation = Option(response.getFirstHeader("Location")).map(_.getValue)
         if (relocation.isEmpty) {
           val entity = response.getEntity()
-          ResumeableIoApi.put(entity.getContent, p.token(mac), path.tail)
+
+          ResumeableIoApi.put(new BufferedInputStream(entity.getContent, 1024*64), p.token(mac), path.tail)
           store.FetchStore.put(path, store.FetchResult.Ok)
         } else {
           relocation.foreach(ref => fetch(resolvers, path, url))
