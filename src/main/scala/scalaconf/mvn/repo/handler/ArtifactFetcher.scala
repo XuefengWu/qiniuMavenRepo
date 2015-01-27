@@ -27,21 +27,21 @@ object ArtifactFetcher {
 
 }
 
-case class ArtifactUri(resolvers: Seq[String], path: String)
+case class ArtifactUri(resolvers: Seq[String], path: String, clientOpt : Option[AsyncHttpClient] = None)
 
 class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
 
 
   override def receive: Receive = {
-    case ArtifactUri(resolvers, path) if resolvers.nonEmpty =>
+    case ArtifactUri(resolvers, path, clientOpt) if resolvers.nonEmpty =>
       if(store.FetchStore.get(path).isEmpty) {
-        fetch(resolvers, path, resolvers.head + path)
+        fetch(resolvers, path, resolvers.head + path, clientOpt)
       }
   }
 
-  private def fetch(resolvers: Seq[String], path: String, url: String): Unit = {
+  private def fetch(resolvers: Seq[String], path: String, url: String, clientOpt : Option[AsyncHttpClient] = None): Unit = {
 
-    val client = new AsyncHttpClient()
+    val client = clientOpt.getOrElse(new AsyncHttpClient())
     store.FetchStore.put(path, store.FetchResult.InProgress)
     val f = client.prepareGet(url).execute(new AsyncHandler[Unit]() {
 
@@ -50,7 +50,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
       override def onThrowable(t: Throwable): Unit = {
         //store.FetchStore.put(path, store.FetchResult.Fail)
         store.FetchStore.del(path)
-        tryFetchForNext(resolvers, path)
+        tryFetchForNext(resolvers, path, client)
       }
 
       override def onCompleted(): Unit = {
@@ -71,7 +71,7 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
         val statusCode = responseStatus.getStatusCode()
         if (statusCode >= 400) {
           store.FetchStore.del(path)
-          tryFetchForNext(resolvers, path)
+          tryFetchForNext(resolvers, path, client)
           STATE.ABORT
         } else {
           STATE.CONTINUE
@@ -92,9 +92,11 @@ class ArtifactFetcher(p: PutPolicy, mac: Mac) extends Actor with ActorLogging {
 
   }
 
-  private def tryFetchForNext(resolvers: Seq[String], path: String): Unit = {
+  private def tryFetchForNext(resolvers: Seq[String], path: String, client: AsyncHttpClient): Unit = {
     if(resolvers.nonEmpty) {
       self ! ArtifactUri(resolvers.tail, path)
+    } else {
+      client.close()
     }
   }
 
